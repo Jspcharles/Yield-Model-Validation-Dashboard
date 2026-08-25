@@ -8,7 +8,7 @@ from data_loader import load_workbook, farm_correlations, pair_correlation
 
 st.set_page_config(page_title="Yield Model Validation Dashboard", layout="wide", page_icon="🌾")
 
-DATA_PATH = "data_files\\yield_comparison_dataset_v1.xlsx"
+DATA_PATH = "data_files/yield_comparison_dataset_v1.xlsx"
 
 # ---------- Styling ----------
 st.markdown("""
