@@ -18,16 +18,7 @@ streamlit run app.py
 ```
 Opens at `http://localhost:8501`.
 
-## Deploy it so the company can access it anytime (free)
-1. Push this folder to a GitHub repo (public or private).
-2. Go to [share.streamlit.io](https://share.streamlit.io), sign in with GitHub.
-3. Click **New app**, point it at the repo and `app.py`.
-4. You get a permanent URL (e.g. `yourapp.streamlit.app`) — bookmark and share it.
-
-Redeploying after a data change is automatic: push the updated `Final_Dataset.xlsx`
-to the same repo and the live app picks it up within a minute or two.
-
-## Updating data without touching GitHub at all
+## Updating data
 The app has an **upload box in the sidebar**. Anyone with the latest spreadsheet
 (same template) can drag it in and the whole dashboard refreshes instantly —
 no deployment, no code, no waiting on you. This is the easiest path for the
