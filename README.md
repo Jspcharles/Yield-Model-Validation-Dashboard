@@ -32,11 +32,3 @@ Copy the sheet-tab format used by the existing farms exactly:
 The parser searches for these labels by text rather than a fixed cell
 address, so minor layout drift (an extra blank row, etc.) won't break it —
 but keeping the same structure is the safest bet.
-
-## Notes on the correlation numbers
-`Actual` yield is missing for most years at most farms (two farms currently
-have none at all). Every correlation shown is labeled with its sample size
-(`n`), and anything under 10 overlapping years is flagged — a strong-looking
-r from 5 points isn't the same evidence as one from 30. Worth mentioning
-explicitly when presenting this, since it's the kind of thing that undermines
-credibility if a stakeholder notices it themselves first.
