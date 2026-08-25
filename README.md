@@ -1,28 +1,25 @@
 # Yield Model Validation Dashboard
 
-Interactive dashboard comparing **Actual**, **Model**, and **ABARES** yield estimates
-across farms. 
+An interactive dashboard comparing **Actual**, **Model**, and **ABARES** yield estimates across farms.
 
-## What's inside
-- `app.py` — the dashboard (Streamlit + Plotly)
-- `data_loader.py` — generic parser: reads *every* sheet in the workbook, so a
-  new farm = a new sheet in the same template, nothing else to touch
-- `Final_Dataset.xlsx` — the bundled/default dataset
-- `requirements.txt` — dependencies
+## 🌐 Live Dashboard
 
-## Run it locally
+The dashboard has been published using **Streamlit Community Cloud** and is available online:
+
+👉 **[Open the Live Yield Model Validation Dashboard](https://yield-model-validation-dashboard.streamlit.app/)**
+
+No installation is required to view or interact with the published dashboard.
+
+## 📁 What's Inside
+
+- `app.py` — Main dashboard built with **Streamlit + Plotly**
+- `data_loader.py` — Generic parser that reads **every sheet** in the workbook, so adding a new farm only requires adding a new sheet using the same template
+- `Final_Dataset.xlsx` — Bundled/default dataset
+- `requirements.txt` — Required Python dependencies
+
+## 🚀 Run Locally
+
+Install the required dependencies:
+
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
-```
-Opens at `http://localhost:8501`.
-
-## Updating data
-The app has an **upload box in the sidebar**. Anyone with the latest spreadsheet
-(same template) can drag it in and the whole dashboard refreshes instantly.
-
-## Adding a new farm
-Copy the sheet-tab format used by the existing farms exactly:
-- A cell containing `Name` with the farm name in the cell to its right
-- `Latitude` / `Longtitude` the same way
-- A `Year | Actual | Model | ABARES` table below
