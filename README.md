@@ -1,8 +1,7 @@
 # Yield Model Validation Dashboard
 
 Interactive dashboard comparing **Actual**, **Model**, and **ABARES** yield estimates
-across farms. Built so it keeps working as you add farms or update numbers —
-no code changes required for either.
+across farms. 
 
 ## What's inside
 - `app.py` — the dashboard (Streamlit + Plotly)
