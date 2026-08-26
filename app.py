@@ -8,7 +8,7 @@ from data_loader import load_workbook, farm_correlations, pair_correlation
 
 st.set_page_config(page_title="Yield Model Validation Dashboard", layout="wide", page_icon="🌾")
 
-DATA_PATH = "data_files/yield_comparison_dataset_v1.xlsx"
+DATA_PATH = "data_files/yield_comparison_dataset_v2.xlsx"
 
 # ---------- Styling ----------
 st.markdown("""
@@ -125,7 +125,7 @@ with tab_overview:
 # TAB 2 — Farm detail
 # ============================================================
 with tab_farm:
-    selected = st.selectbox("Select a farm", farm_names)
+    selected = st.radio("Select a farm", farm_names, horizontal=True, key="farm_detail_pick")
     f = farms[selected]
     df = f["data"]
     yr_min, yr_max = int(df["Year"].min()), int(df["Year"].max())
