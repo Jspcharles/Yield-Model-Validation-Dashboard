@@ -1,5 +1,3 @@
-import uuid
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -30,32 +28,20 @@ st.caption("Actual vs Model vs ABARES yield estimates, by farm.")
 # ---------- Data source: bundled file, with self-serve refresh ----------
 with st.sidebar:
     st.header("Data")
-    uploaded_files = st.file_uploader(
-        "Upload updated workbook(s) to refresh the dashboard",
+    uploaded = st.file_uploader(
+        "Upload an updated workbook to refresh the dashboard",
         type=["xlsx"],
-        accept_multiple_files=True,
         help="Same template: one sheet per farm, with Name/Latitude/Longtitude "
              "and a Year/Actual/Model/ABARES table. Add a new farm by adding a "
-             "new sheet in this format — no other changes needed. You can "
-             "upload several files at once (e.g. one per region) — they're "
-             "merged into a single dashboard.",
+             "new sheet in this format — no other changes needed.",
     )
+    source = uploaded if uploaded is not None else DATA_PATH
+    if uploaded is not None:
+        st.success(f"Using uploaded file: {uploaded.name}")
+    else:
+        st.info(f"Using bundled file: {DATA_PATH}")
 
-if uploaded_files:
-    farms, skipped = {}, []
-    for uf in uploaded_files:
-        f_farms, f_skipped = load_workbook(uf)
-        for name in f_farms:
-            if name in farms:
-                skipped.append((f"{uf.name}: {name}",
-                                 "duplicate farm name — this file's version overwrote an earlier upload"))
-        farms.update(f_farms)
-        skipped.extend([(f"{uf.name}: {s}", e) for s, e in f_skipped])
-    st.sidebar.success(f"Using {len(uploaded_files)} uploaded file(s): "
-                        + ", ".join(u.name for u in uploaded_files))
-else:
-    farms, skipped = load_workbook(DATA_PATH)
-    st.sidebar.info(f"Using bundled file: {DATA_PATH}")
+farms, skipped = load_workbook(source)
 
 if skipped:
     with st.sidebar.expander(f"⚠️ {len(skipped)} sheet(s) skipped", expanded=False):
@@ -77,67 +63,6 @@ def badge(n, min_n=10):
 
 def r_or_dash(r):
     return "—" if (r is None or np.isnan(r)) else f"{r:.2f}"
-
-PLOTLY_CDN = "https://cdn.plot.ly/plotly-2.35.2.min.js"
-
-def render_chart(fig, height=400):
-    """Render a Plotly figure with an added 'Copy image' modebar button.
-    Plotly has no built-in clipboard button, so this wires one up via the
-    browser Clipboard API, alongside the existing zoom/pan/download tools.
-    Falls back to triggering a normal PNG download if the browser blocks
-    clipboard access (some browsers restrict this inside embedded frames)."""
-    div_id = "chart_" + uuid.uuid4().hex
-    fig_json = fig.to_json()
-    html = f"""
-    <div id="{div_id}" style="width:100%;"></div>
-    <script src="{PLOTLY_CDN}"></script>
-    <script>
-    (function() {{
-        var figure = {fig_json};
-        var config = {{
-            responsive: true,
-            displaylogo: false,
-            modeBarButtonsToAdd: [{{
-                name: 'copyImage',
-                title: 'Copy image to clipboard',
-                icon: Plotly.Icons.camera,
-                click: function(gd) {{
-                    Plotly.toImage(gd, {{format: 'png', scale: 2,
-                                          width: gd._fullLayout.width,
-                                          height: gd._fullLayout.height}})
-                        .then(function(dataUrl) {{
-                            fetch(dataUrl).then(function(r) {{ return r.blob(); }}).then(function(blob) {{
-                                if (navigator.clipboard && window.ClipboardItem) {{
-                                    navigator.clipboard.write([new ClipboardItem({{'image/png': blob}})])
-                                        .then(function() {{ toast(gd, 'Copied to clipboard'); }})
-                                        .catch(function() {{
-                                            Plotly.downloadImage(gd, {{format: 'png', filename: '{div_id}'}});
-                                            toast(gd, "Couldn't access clipboard — downloaded instead");
-                                        }});
-                                }} else {{
-                                    Plotly.downloadImage(gd, {{format: 'png', filename: '{div_id}'}});
-                                    toast(gd, "Clipboard not supported — downloaded instead");
-                                }}
-                            }});
-                        }});
-                }}
-            }}]
-        }};
-        Plotly.newPlot('{div_id}', figure.data, figure.layout, config);
-
-        function toast(gd, msg) {{
-            var t = document.createElement('div');
-            t.innerText = msg;
-            t.style.cssText = 'position:absolute; top:6px; right:8px; background:#333; color:#fff;'
-                + 'padding:4px 10px; border-radius:5px; font-size:12px; z-index:1000; opacity:0.95;';
-            gd.parentElement.style.position = 'relative';
-            gd.parentElement.appendChild(t);
-            setTimeout(function() {{ t.remove(); }}, 1800);
-        }}
-    }})();
-    </script>
-    """
-    st.iframe(html, height=height + 40)
 
 tab_overview, tab_farm, tab_compare, tab_data = st.tabs(
     ["📍 Overview", "🔎 Farm detail", "📊 Cross-farm comparison", "📄 Data"]
@@ -178,7 +103,7 @@ with tab_overview:
             zoom=3.2, height=480,
         )
         fig.update_layout(map_style="carto-positron", margin=dict(l=0, r=0, t=0, b=0))
-        render_chart(fig, height=480)
+        st.plotly_chart(fig, width='stretch')
     else:
         st.warning("Some farms are missing coordinates, so the map view is skipped.")
 
@@ -218,7 +143,7 @@ with tab_farm:
         ))
     fig_ts.update_layout(height=400, title="Yield over time", yaxis_title="Yield",
                           hovermode="x unified", legend=dict(orientation="h", y=1.1))
-    render_chart(fig_ts, height=400)
+    st.plotly_chart(fig_ts, width='stretch')
 
     # --- Scatter pairs ---
     st.markdown("#### Correlation scatter plots")
@@ -249,7 +174,7 @@ with tab_farm:
             fig_sc.update_layout(height=300, margin=dict(t=30, b=10), showlegend=False,
                                   xaxis_title=x, yaxis_title=y,
                                   title=f"{x} vs {y}  (r={stat['r']:.2f}, n={stat['n']})")
-            render_chart(fig_sc, height=300)
+            st.plotly_chart(fig_sc, width='stretch')
             if stat["n"] < 10:
                 st.markdown('<span class="low-n">⚠ small sample — treat this r with caution</span>',
                             unsafe_allow_html=True)
@@ -279,7 +204,7 @@ with tab_compare:
         hoverinfo="text",
     ))
     fig_heat.update_layout(height=220, margin=dict(t=20, b=10))
-    render_chart(fig_heat, height=220)
+    st.plotly_chart(fig_heat, width='stretch')
 
     st.caption("Cells with fewer than 10 overlapping years are still shown but should be read with caution — "
                "a strong-looking r from 5 points is not the same statistical evidence as one from 30.")
