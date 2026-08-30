@@ -2,7 +2,7 @@
 
 An interactive dashboard comparing **Actual**, **Model**, and **ABARES** yield estimates across farms.
 
-## 🌐 Live Dashboard
+## 🌐 Live Dashboard for Yield Analysis
 
 The dashboard has been published using **Streamlit Community Cloud** and is available online:
 
